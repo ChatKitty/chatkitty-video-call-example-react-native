@@ -2074,10 +2074,10 @@ char-regex@^1.0.2:
   resolved "https://registry.yarnpkg.com/char-regex/-/char-regex-1.0.2.tgz#d744358226217f981ed58f479b1d6bcc29545dcf"
   integrity sha512-kWWXztvZ5SBQV+eRgKFeh8q5sLuZY2+8WUIzlxWVTg+oGwY14qylx1KbKzHd8P6ZYkAg0xyIDU9JMHhyJMZ1jw==
 
-chatkitty@2.0.0-alpha.0:
-  version "2.0.0-alpha.0"
-  resolved "https://registry.yarnpkg.com/chatkitty/-/chatkitty-2.0.0-alpha.0.tgz#0eaf069f1bbf2b6a7f342f4110aee5d76900d509"
-  integrity sha512-sl4uM+Dt8fIIOfbrCjfgcKbULNMSajVSeDQ8Hak34p7M1XcADfp68Qyp9uOJ/Q/0nz4N4GpFUCO7kUDHNQmtYA==
+chatkitty@2.0.0-alpha.1:
+  version "2.0.0-alpha.1"
+  resolved "https://registry.yarnpkg.com/chatkitty/-/chatkitty-2.0.0-alpha.1.tgz#f997684c320c22f34b9a24dc41fa0d9b7380eef9"
+  integrity sha512-Bi02LCMIJvcjg9g/S9XmE+yfqs7NusHyM4EvO3LJrrMOKD53T5HZFnrUcYK4uKNiguKgNKCdSOoB8E/35ovxhQ==
   dependencies:
     "@stomp/rx-stomp" "^1.1.2"
     axios "^0.21.1"
