@@ -1,24 +1,11 @@
 import React, {useContext} from 'react';
 import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {UsersScreenNavigationProp} from '../navigation';
-import {User} from 'chatkitty';
 import {MainContext} from '../providers/MainProvider';
 
-interface Props {
-  navigation: UsersScreenNavigationProp;
-}
-
-const UsersScreen = ({}: Props) => {
-  const {currentUser, users, logout, activeCall} = useContext(MainContext);
-
-  const callUser = (user: User) => {
-    console.log('call: ', user);
-  };
-
-  const onLogout = async () => {
-    logout();
-  };
+const UsersScreen = () => {
+  const {currentUser, users, call, activeCall, logout} =
+    useContext(MainContext);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -32,8 +19,8 @@ const UsersScreen = ({}: Props) => {
               <Text style={styles.text}>{item.name}</Text>
               {currentUser?.name !== item.name ? (
                 <TouchableOpacity
-                  disabled={activeCall}
-                  onPress={() => callUser(item)}
+                  disabled={!!activeCall}
+                  onPress={() => call(item)}
                   style={[styles.btn, {opacity: activeCall ? 0.3 : 1}]}>
                   <Text style={styles.btnText}>Call</Text>
                 </TouchableOpacity>
@@ -44,7 +31,7 @@ const UsersScreen = ({}: Props) => {
           );
         }}
       />
-      <TouchableOpacity onPress={onLogout}>
+      <TouchableOpacity onPress={logout}>
         <Text style={[styles.text, {textAlign: 'center'}]}>Logout</Text>
       </TouchableOpacity>
     </SafeAreaView>

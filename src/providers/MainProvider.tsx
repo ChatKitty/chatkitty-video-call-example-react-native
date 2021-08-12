@@ -7,7 +7,14 @@ import {
 } from 'react-native-webrtc';
 import {MainContext as MainContextType} from '../contexts';
 import {navigate} from '../navigation';
-import {GetUsersSucceededResult, User} from 'chatkitty';
+import {
+  Call,
+  CreatedChannelResult,
+  GetCallsSucceededResult,
+  GetUsersSucceededResult,
+  StartedCallResult,
+  User,
+} from 'chatkitty';
 import kitty from '../chatkitty';
 
 const initialValues: MainContextType = {
@@ -41,7 +48,7 @@ const MainContextProvider: React.FC<Props> = ({children}) => {
   );
   const [remoteUser, setRemoteUser] = useState<User | null>(null);
   const [isMuted, setIsMuted] = useState(initialValues.isMuted);
-  const [activeCall, setActiveCall] = useState<any>(null);
+  const [activeCall, setActiveCall] = useState<Call | null>(null);
 
   useEffect(() => {
     kitty.onCurrentUserChanged(user => {
@@ -92,8 +99,39 @@ const MainContextProvider: React.FC<Props> = ({children}) => {
     });
   };
 
-  const call = (user: User) => {
-    console.log(user);
+  const call = async (user: User) => {
+    const channel = (
+      (await kitty.createChannel({
+        type: 'DIRECT',
+        members: [{username: user.name}],
+      })) as CreatedChannelResult
+    ).channel;
+
+    let aCall = (
+      (await kitty.getCalls({
+        channel,
+        filter: {active: true},
+      })) as GetCallsSucceededResult
+    ).paginator.items[0];
+
+    if (!aCall) {
+      aCall = ((await kitty.startCall({channel})) as StartedCallResult).call;
+    }
+
+    if (localStream) {
+      await kitty.startCallSession({
+        call: aCall,
+        stream: localStream,
+        onParticipantAddedStream: (participant, participantStream) => {
+          setRemoteUser(participant);
+          setRemoteStream(participantStream);
+        },
+      });
+
+      setActiveCall(aCall);
+
+      navigate('Call');
+    }
   };
 
   const switchCamera = () => {
@@ -113,7 +151,7 @@ const MainContextProvider: React.FC<Props> = ({children}) => {
   };
 
   const closeCall = () => {
-    activeCall?.close();
+    // activeCall?.end();
     setActiveCall(null);
     setRemoteUser(null);
     navigate('Users');

@@ -1,4 +1,3 @@
-import {StackNavigationProp} from '@react-navigation/stack';
 import {NavigationContainerRef} from '@react-navigation/native';
 import React from 'react';
 
@@ -12,21 +11,6 @@ export type HomeStackParamList = {
   Users: undefined;
   Call: undefined;
 };
-
-export type LoginScreenNavigationProp = StackNavigationProp<
-  AuthStackParamList,
-  'Login'
->;
-
-export type UsersScreenNavigationProp = StackNavigationProp<
-  HomeStackParamList,
-  'Users'
->;
-
-export type CallScreenNavigationProp = StackNavigationProp<
-  HomeStackParamList,
-  'Call'
->;
 
 export const navigationRef = React.createRef<NavigationContainerRef<any>>();
 

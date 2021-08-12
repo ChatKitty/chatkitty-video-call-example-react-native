@@ -2,14 +2,9 @@ import React, {useContext, useState} from 'react';
 import {Alert, StyleSheet, Text, View} from 'react-native';
 import {TextInput, TouchableOpacity} from 'react-native-gesture-handler';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {LoginScreenNavigationProp} from '../navigation';
 import {MainContext} from '../providers/MainProvider';
 
-interface Props {
-  navigation: LoginScreenNavigationProp;
-}
-
-const LoginScreen = ({}: Props) => {
+const LoginScreen = () => {
   const {login} = useContext(MainContext);
 
   const [username, setUsername] = useState('');
