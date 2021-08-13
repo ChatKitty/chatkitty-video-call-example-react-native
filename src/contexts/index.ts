@@ -1,6 +1,6 @@
 import {MediaStream} from 'react-native-webrtc';
 import React from 'react';
-import {Call, CurrentUser, User} from 'chatkitty';
+import {CallSession, CurrentUser, User} from 'chatkitty';
 
 export interface MainContext {
   login: (username: string) => void;
@@ -18,5 +18,5 @@ export interface MainContext {
   closeCall: () => void;
   logout: () => void;
   remoteUser: User | null;
-  activeCall: Call | null;
+  callSession: CallSession | null;
 }

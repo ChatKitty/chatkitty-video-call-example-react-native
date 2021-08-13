@@ -9,10 +9,12 @@ import {MainContext as MainContextType} from '../contexts';
 import {navigate} from '../navigation';
 import {
   Call,
+  CallSession,
   CreatedChannelResult,
   GetCallsSucceededResult,
   GetUsersSucceededResult,
   StartedCallResult,
+  StartedCallSessionResult,
   User,
 } from 'chatkitty';
 import kitty from '../chatkitty';
@@ -30,7 +32,7 @@ const initialValues: MainContextType = {
   isMuted: false,
   closeCall: () => {},
   logout: () => {},
-  activeCall: null,
+  callSession: null,
 };
 
 export const MainContext = React.createContext(initialValues);
@@ -48,7 +50,35 @@ const MainContextProvider: React.FC<Props> = ({children}) => {
   );
   const [remoteUser, setRemoteUser] = useState<User | null>(null);
   const [isMuted, setIsMuted] = useState(initialValues.isMuted);
-  const [activeCall, setActiveCall] = useState<Call | null>(null);
+  const [callSession, setCallSession] = useState<CallSession | null>(null);
+
+  const startCallSession = (call: Call, stream: MediaStream) => {
+    console.log('start call: ', call);
+    let result = kitty.startCallSession({
+      call,
+      stream,
+      onParticipantAcceptedCall: participant => {
+        setRemoteUser(participant);
+      },
+      onParticipantRejectedCall: participant => {
+        setRemoteUser(null);
+        callSession?.end();
+        Alert.alert('Your call request rejected by ' + participant.name);
+        navigate('Users');
+      },
+      onParticipantAddedStream: (participant, participantStream) => {
+        setRemoteUser(participant);
+        setRemoteStream(participantStream);
+      },
+      onParticipantLeftCall: () => {
+        closeCall();
+      },
+    }) as StartedCallSessionResult;
+
+    setCallSession(result.session);
+
+    navigate('Call');
+  };
 
   useEffect(() => {
     kitty.onCurrentUserChanged(user => {
@@ -78,9 +108,11 @@ const MainContextProvider: React.FC<Props> = ({children}) => {
       },
     };
 
-    const newStream = await mediaDevices.getUserMedia(constraints);
+    const stream = (await mediaDevices.getUserMedia(
+      constraints,
+    )) as MediaStream;
 
-    setLocalStream(newStream as MediaStream);
+    setLocalStream(stream);
 
     await kitty.startSession({username: username});
 
@@ -95,6 +127,29 @@ const MainContextProvider: React.FC<Props> = ({children}) => {
             filter: {online: true},
           })) as GetUsersSucceededResult
         ).paginator.items,
+      );
+    });
+
+    kitty.onCallInvite(call => {
+      Alert.alert(
+        'New Call',
+        'You have a new call from ' + call.creator.displayName,
+        [
+          {
+            text: 'Reject',
+            onPress: () => {
+              kitty.rejectCall({call});
+            },
+            style: 'cancel',
+          },
+          {
+            text: 'Accept',
+            onPress: () => {
+              startCallSession(call, stream);
+            },
+          },
+        ],
+        {cancelable: false},
       );
     });
   };
@@ -119,18 +174,7 @@ const MainContextProvider: React.FC<Props> = ({children}) => {
     }
 
     if (localStream) {
-      await kitty.startCallSession({
-        call: aCall,
-        stream: localStream,
-        onParticipantAddedStream: (participant, participantStream) => {
-          setRemoteUser(participant);
-          setRemoteStream(participantStream);
-        },
-      });
-
-      setActiveCall(aCall);
-
-      navigate('Call');
+      startCallSession(aCall, localStream);
     }
   };
 
@@ -151,8 +195,8 @@ const MainContextProvider: React.FC<Props> = ({children}) => {
   };
 
   const closeCall = () => {
-    // activeCall?.end();
-    setActiveCall(null);
+    callSession?.end();
+    setCallSession(null);
     setRemoteUser(null);
     navigate('Users');
     Alert.alert('Call is ended');
@@ -160,7 +204,7 @@ const MainContextProvider: React.FC<Props> = ({children}) => {
 
   const logout = async () => {
     await kitty.endSession();
-    setActiveCall(null);
+    setCallSession(null);
     setRemoteUser(null);
     setLocalStream(null);
     setRemoteStream(null);
@@ -184,7 +228,7 @@ const MainContextProvider: React.FC<Props> = ({children}) => {
         closeCall,
         logout,
         remoteUser,
-        activeCall,
+        callSession,
       }}>
       {children}
     </MainContext.Provider>
